@@ -38,23 +38,23 @@ const Register = () => {
             }
 
             const data = await response.json();
+
             auth?.login(data.token);
+            localStorage.setItem("user_id", data.id);
+            localStorage.setItem("role", data.role);
+
+            if (data.role === "service") {
+                if ("service_id" in data) {
+                    localStorage.setItem("service_id", String(data.service_id));
+                }
+                if ("data_filled" in data) {
+                    localStorage.setItem("data_filled", String(data.data_filled));
+                }
+            }
+
             navigate("/");
         } catch (err: any) {
             setError(err.message);
-        }
-    };
-
-    const fetchServiceId = async (userId: number) => {
-        try {
-            const response = await fetch(`http://localhost:3001/services/user/${userId}`);
-            if (!response.ok) {
-                throw new Error("Не удалось получить сервис");
-            }
-            const data = await response.json();
-            localStorage.setItem("service_id", data.service_id); // ✅ сохраняем service_id
-        } catch (error) {
-            console.error("Ошибка получения service_id:", error);
         }
     };
 
@@ -88,16 +88,22 @@ const Register = () => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || "Ошибка регистрации");
+                setError(errorData.message || "Ошибка регистрации");
+                return;
             }
 
             const newUser = await response.json();
+
             localStorage.setItem("user_id", newUser.id);
             localStorage.setItem("role", newUser.role);
 
-            // ✅ Если роль — автосервис, получаем и сохраняем service_id
             if (newUser.role === "service") {
-                await fetchServiceId(newUser.id);
+                if ("service_id" in newUser) {
+                    localStorage.setItem("service_id", String(newUser.service_id));
+                }
+                if ("data_filled" in newUser) {
+                    localStorage.setItem("data_filled", String(newUser.data_filled));
+                }
             }
 
             await handleLogin(formData.email, formData.password);

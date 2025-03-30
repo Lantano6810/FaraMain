@@ -21,9 +21,14 @@ export class UsersService {
     private readonly servicesService: ServicesService,
   ) {}
 
-  async createUser(
-    createUserDto: CreateUserDto,
-  ): Promise<Omit<User, 'password'>> {
+  async createUser(createUserDto: CreateUserDto): Promise<{
+    id: number;
+    email: string;
+    name: string;
+    role: string;
+    service_id?: number;
+    data_filled?: string;
+  }> {
     const { email, password, name, role } = createUserDto;
 
     const existingUser = await this.usersRepository.findOne({
@@ -48,6 +53,9 @@ export class UsersService {
     const savedUser = await this.usersRepository.save(user);
     console.log('ID созданного пользователя:', savedUser.id);
 
+    let service_id: number | undefined;
+    let data_filled: string | undefined;
+
     if (savedUser.role === 'service') {
       const serviceData: CreateServiceDto = {
         user_id: savedUser.id,
@@ -64,10 +72,18 @@ export class UsersService {
 
       const newService = await this.servicesService.create(serviceData);
       console.log('Созданная услуга:', newService);
+      service_id = newService.service_id;
+      data_filled = String(newService.data_filled); // ✅ Приведение к string
     }
 
-    const { password: _, ...userWithoutPassword } = savedUser;
-    return userWithoutPassword;
+    return {
+      id: savedUser.id,
+      email: savedUser.email,
+      name: savedUser.name,
+      role: savedUser.role,
+      ...(service_id && { service_id }),
+      ...(data_filled && { data_filled }),
+    };
   }
 
   async updateUser(

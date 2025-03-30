@@ -8,12 +8,13 @@ import UserCabinet from "./pages/UserCabinet";
 import ServiceList from "./pages/ServiceList";
 import Header from "./components/Header";
 import OrderServicePage from "./pages/OrderServicePage.tsx";
+import FillServiceData from "./pages/FillServiceData"; // ✅ Импортируем новую страницу
 
 function App() {
     return (
         <Router>
             <Header />
-            <main className="w-100"> {/* Сделали ширину 100% + небольшие отступы */}
+            <main className="w-100">
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
@@ -22,6 +23,7 @@ function App() {
                     <Route path="/cabinet" element={<UserCabinet />} />
                     <Route path="/services" element={<ServiceList />} />
                     <Route path="/services/:id" element={<OrderServicePage />} />
+                    <Route path="/fill-service" element={<FillServiceData />} /> {/* ✅ Новый маршрут */}
                 </Routes>
             </main>
             <Footer />

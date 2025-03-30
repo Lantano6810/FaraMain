@@ -39,26 +39,31 @@ const Login = () => {
 
             const data = await response.json();
 
-            // ✅ Сохраняем токен, роль, user_id и service_id (если есть)
+            // ✅ Сохраняем токен, роль и user_id
             localStorage.setItem("token", data.token);
-            localStorage.setItem("role", data.role);
-            localStorage.setItem("user_id", data.user_id); // ✅ Записываем user_id
+            localStorage.setItem("role", data.user.role);
+            localStorage.setItem("user_id", data.user.id);
 
-            if (data.service_id) {
-                localStorage.setItem("service_id", data.service_id); // ✅ Записываем service_id
+            // ✅ Если автосервис — получаем и сохраняем service_id + data_filled
+            if (data.user.role === "service") {
+                const serviceRes = await fetch(`http://localhost:3001/services/user/${data.user.id}`);
+                if (serviceRes.ok) {
+                    const serviceData = await serviceRes.json();
+                    localStorage.setItem("service_id", serviceData.service_id);
+                    localStorage.setItem("data_filled", serviceData.data_filled.toString());
+                }
             }
 
             auth?.login(data.token); // Авторизуем пользователя через контекст
 
-            // ✅ Проверяем роль и отправляем на нужную страницу
-            if (data.role === "service") {
+            // ✅ Перенаправление в зависимости от роли
+            if (data.user.role === "service") {
                 navigate("/service");
-            } else if (data.role === "car_owner") {
-                navigate("/");
+            } else if (data.user.role === "car_owner") {
+                navigate("/cabinet");
             } else {
-                navigate("/"); // На всякий случай, если роль другая
+                navigate("/"); // На всякий случай
             }
-
         } catch (err: any) {
             setError(err.message);
         }
@@ -66,7 +71,6 @@ const Login = () => {
 
     return (
         <>
-            {/*<Header />*/}
             <div className="login-wrapper">
                 <div className="login-text">
                     <h2 className="login-title">Первый шаг сделан — осталось совсем немного!</h2>

@@ -7,14 +7,14 @@ import { CreateServiceDto } from './dto/create-service.dto';
 @Injectable()
 export class ServicesService {
   constructor(
-    @InjectRepository(Service)
-    private serviceRepository: Repository<Service>,
+      @InjectRepository(Service)
+      private serviceRepository: Repository<Service>,
   ) {}
 
   // 🔹 Создание нового сервиса
   async create(serviceData: CreateServiceDto): Promise<Service> {
     const newService = this.serviceRepository.create({
-      user_id: serviceData.user_id, // устанавливаем user_id как внешний ключ
+      user_id: serviceData.user_id,
       service_name: serviceData.service_name || '',
       about: serviceData.about || '',
       city: serviceData.city || '',
@@ -25,9 +25,20 @@ export class ServicesService {
       time_end: serviceData.time_end || '',
       daily_limit: serviceData.daily_limit || 0,
       created_at: new Date(),
+      data_filled: 0, // ✅ значение по умолчанию — НЕ заполнено
     });
 
     return await this.serviceRepository.save(newService);
+  }
+
+  // 🔹 Пометить сервис как заполненный
+  async markServiceAsFilled(serviceId: number): Promise<void> {
+    const service = await this.serviceRepository.findOne({ where: { service_id: serviceId } });
+    if (!service) {
+      throw new NotFoundException(`Сервис с ID ${serviceId} не найден`);
+    }
+
+    await this.serviceRepository.update(serviceId, { data_filled: 1 }); // ✅ теперь числовое значение
   }
 
   // 🔹 Получение всех сервисов

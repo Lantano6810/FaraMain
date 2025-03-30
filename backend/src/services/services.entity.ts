@@ -54,6 +54,9 @@ export class Service {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
+  @Column({ type: 'int', default: 0 }) // ✅ Числовое поле: 0 (не заполнено), 1 (заполнено)
+  data_filled: number;
+
   @OneToMany(() => Application, (application) => application.service, {
     cascade: true,
   })
