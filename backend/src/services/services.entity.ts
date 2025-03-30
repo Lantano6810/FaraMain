@@ -1,53 +1,64 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { User } from '../users/user.entity';
-import { Application } from '../applications/applications.entity'; // ✅ Импортируем Application
+import { Application } from '../applications/applications.entity';
 import { Photo } from '../photos/photo.entity';
-
 
 @Entity()
 export class Service {
-    @PrimaryGeneratedColumn()
-    service_id: number;
+  @PrimaryGeneratedColumn()
+  service_id: number;
 
-    @OneToOne(() => User, (user) => user.service, { onDelete: 'CASCADE' }) // Связь с User
-    @JoinColumn({ name: 'user_id' }) // Внешний ключ в таблице Service
-    user: User;
+  @Column({ nullable: true }) // ⛑ Временно делаем user_id nullable
+  user_id: number;
 
-    @Column()
-    service_name: string;
+  @OneToOne(() => User, (user) => user.service, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-    @Column({ type: 'text' })
-    about: string;
+  @Column()
+  service_name: string;
 
-    @Column()
-    city: string;
+  @Column({ type: 'text' })
+  about: string;
 
-    @Column({ type: 'text', nullable: true }) // Новый столбец для адреса
-    address: string;
+  @Column()
+  city: string;
 
-    @Column({ type: 'simple-array' }) // Массив строк
-    works: string[];
+  @Column({ type: 'text', nullable: true })
+  address: string;
 
-    @Column()
-    working_days: string; // Просто строка (например, "Monday,Tuesday")
+  @Column({ type: 'simple-array' })
+  works: string[];
 
-    @Column()
-    time_start: string; // Начало рабочего дня (09:00)
+  @Column()
+  working_days: string;
 
-    @Column()
-    time_end: string; // Конец рабочего дня (18:00)
+  @Column()
+  time_start: string;
 
-    @Column({ type: 'int' })
-    daily_limit: number;
+  @Column()
+  time_end: string;
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    created_at: Date;
+  @Column({ type: 'int' })
+  daily_limit: number;
 
-    // ✅ Добавляем связь OneToMany (Один сервис - много заявок)
-    @OneToMany(() => Application, (application) => application.service, { cascade: true })
-    applications: Application[];
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_at: Date;
 
-    @OneToMany(() => Photo, (photo) => photo.service)
-    photos: Photo[];
+  @OneToMany(() => Application, (application) => application.service, {
+    cascade: true,
+  })
+  applications: Application[];
 
+  @OneToMany(() => Photo, (photo) => photo.service)
+  photos: Photo[];
 }

@@ -181,7 +181,7 @@ const MyServiceApplications = () => {
             ) : error ? (
                 <p className="error">{error}</p>
             ) : applications.length === 0 ? (
-                <p>Пока нет заявок.</p>
+                <p>К сожалению, в ваш сервис еще не поступали заявки на обслуживание.</p>
             ) : (
                 <>
                     {/* Вкладки по годам/месяцам/дням */}
